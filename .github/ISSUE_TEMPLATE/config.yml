@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Dokumentace Freela
+    url: https://www.freelo.io/cs/napoveda
+    about: Obecné dotazy o Freelo.io najdete v nápovědě
+  - name: 📧 Obecná podpora
+    url: mailto:info@freelo.io
+    about: Pro netechnické dotazy nebo důvěrné záležitosti
+  - name: 🔐 Bezpečnostní problém
+    url: https://github.com/freeloio/claude-freelo-skill/blob/main/SECURITY.md
+    about: Postup pro hlášení bezpečnostních zranitelností

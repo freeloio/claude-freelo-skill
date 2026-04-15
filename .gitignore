@@ -1,0 +1,17 @@
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+Thumbs.db
+
+# Local credentials — never commit
+.env
+.env.local
+.env.*.local
+credentials.json
+*.credentials
+
+# Claude Code config (may contain API keys in env section)
+.claude/settings.json
+.claude/settings.*.json

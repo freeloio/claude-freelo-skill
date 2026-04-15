@@ -1,0 +1,16 @@
+{
+  "name": "claude-freelo-skill",
+  "owner": { "name": "freeloio" },
+  "metadata": {
+    "description": "Claude Code skill pro práci s Freelo.io API — řízení projektů, úkolů, time trackingu, fakturace a další přes přirozený jazyk.",
+    "homepage": "https://github.com/freeloio/claude-freelo-skill"
+  },
+  "plugins": [
+    {
+      "name": "freelo",
+      "version": "1.0.0",
+      "source": "./plugin",
+      "description": "Ovládejte Freelo.io přes Claude přirozeným jazykem — vytvářejte úkoly, sledujte čas, generujte přehledy projektů, spravujte štítky, soubory a další."
+    }
+  ]
+}

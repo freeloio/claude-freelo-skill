@@ -1,0 +1,30 @@
+{
+  "name": "freelo",
+  "version": "1.0.0",
+  "description": "Claude Code skill pro Freelo.io REST API — projekty, úkoly, time tracking, fakturace, soubory a další přes přirozený jazyk.",
+  "author": {
+    "name": "Freelo",
+    "email": "info@freelo.io",
+    "url": "https://freelo.io"
+  },
+  "repository": "https://github.com/freeloio/claude-freelo-skill",
+  "homepage": "https://github.com/freeloio/claude-freelo-skill",
+  "bugs": {
+    "url": "https://github.com/freeloio/claude-freelo-skill/issues",
+    "email": "info@freelo.io"
+  },
+  "license": "MIT",
+  "keywords": [
+    "freelo",
+    "freelo-api",
+    "project-management",
+    "task-management",
+    "time-tracking",
+    "claude",
+    "claude-code",
+    "claude-skill",
+    "czech",
+    "cz",
+    "sk"
+  ]
+}
