@@ -9,6 +9,18 @@ Freelo.io is a project and task management tool. This skill enables you to inter
 
 **API reference:** <https://api.freelo.io/docs/v1/freelo-api>
 
+> 🔗 **Critical formatting rule — read this before composing any reply.**
+> Whenever you mention a Freelo entity (task, subtask, project, tasklist,
+> comment, note) in your response — in prose, in a bulleted list, in a
+> table cell, anywhere — render it as `[name](url)`, never as a bare
+> URL. A bare URL like `https://app.freelo.io/task/12345` shows the user
+> a URL, not a name; they cannot tell which entity it is without
+> clicking. This applies **especially in tables**: the entity column
+> must contain `[Task name](https://app.freelo.io/task/12345)`, NOT
+> `https://app.freelo.io/task/12345`. Full rules and the URL templates
+> are in the "Response formatting" section below — but if you remember
+> only one rule from this skill, remember this one.
+
 ---
 
 ## Authentication
@@ -19,7 +31,7 @@ Use HTTP Basic Auth with credentials from environment variables (configured in `
 - **Password**: `$FREELO_API_KEY`
 - **Base URL**: `$FREELO_BASE_URL` (default: `https://api.freelo.io/v1`)
 
-Every request **must** include a `User-Agent` header — the API rejects requests without it. **Use exactly `Freelo-Claude-Skill/1.0.0`** — Freelo backend uses this specific value to identify skill-originated traffic for usage analytics. Do not substitute with a custom User-Agent; it would make the request invisible to adoption telemetry.
+Every request **must** include a `User-Agent` header — the API rejects requests without it. **Use exactly `Freelo-Claude-Skill/1.0.1`** — Freelo backend uses this specific value to identify skill-originated traffic for usage analytics. Do not substitute with a custom User-Agent; it would make the request invisible to adoption telemetry.
 
 > **This skill is built for Claude Code** (terminal or desktop in Code mode). Credentials must come from environment variables. If `$FREELO_EMAIL` or `$FREELO_API_KEY` is unset, stop and tell the user to add them to `~/.claude/settings.json` and restart Claude Code — do not ask for credentials in the conversation.
 
@@ -29,7 +41,7 @@ Every request **must** include a `User-Agent` header — the API rejects request
 FREELO_BASE_URL="${FREELO_BASE_URL:-https://api.freelo.io/v1}"
 
 curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" \
-  -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+  -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   "$FREELO_BASE_URL/{endpoint}"
 ```
@@ -41,7 +53,7 @@ For POST/PUT requests, add `-d '{"key": "value"}'` with the JSON body.
 ### Verify credentials
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/users/me"
 ```
 
@@ -283,7 +295,9 @@ For `DELETE`, `archive`, `force-delete` — echo the target name back to the use
 
 ## Response formatting — always link entities
 
-When your response mentions a task, subtask, project, tasklist, comment, or note — by ID, name, or any form — **render it as a Markdown link to the Freelo web UI**. The user should be able to click any entity you mention. This is non-negotiable: do not force the user to ask "and what's the link?" after every answer.
+When your response mentions a task, subtask, project, tasklist, comment, or note — by ID, name, or any form — **render it as a Markdown link `[name](url)`** to the Freelo web UI. The user should be able to click any entity you mention AND see what it is without clicking through. This is non-negotiable: do not force the user to ask "and what's the link?" after every answer, and do not force them to click a bare URL to find out which task they're looking at.
+
+> ⚠️ **A bare URL is not enough.** `https://app.freelo.io/task/29234425` renders as a clickable URL, but the user sees just the URL — not the task name. Always wrap it: `[Nabídka pro ABC](https://app.freelo.io/task/29234425)`. Same rule for projects, tasklists, comments, notes.
 
 ### URL templates
 
@@ -311,15 +325,59 @@ When your response mentions a task, subtask, project, tasklist, comment, or note
 
 > Found 3 overdue tasks: Nabídka pro ABC, Reporty Q1, Podklady pro daňovku.
 
+**❌ Also bad** — bare URL renders as the URL itself, not the name; user can't tell which task is which without clicking each one:
+
+> Found 3 overdue tasks:
+> - https://app.freelo.io/task/29234425
+> - https://app.freelo.io/task/29234500
+> - https://app.freelo.io/task/29234600
+
+**❌ Also bad — tables** (this is the most common failure mode). A table column called "Úkol" / "Task" with bare URLs as cell values is unreadable:
+
+> | # | Úkol | Termín |
+> |---|------|--------|
+> | 1 | https://app.freelo.io/task/29326114 | — |
+> | 2 | https://app.freelo.io/task/29318644 | 17. 4. 2026 |
+
+**✅ Good — same table, names linked**:
+
+> | # | Úkol | Termín |
+> |---|------|--------|
+> | 1 | [Marketing strategie Q2](https://app.freelo.io/task/29326114) | — |
+> | 2 | [Newsletter — duben](https://app.freelo.io/task/29318644) | 17. 4. 2026 |
+
 ### Rules
 
-1. **Link text = human-readable name** of the entity (not the ID). If name is unknown, fall back to `Task #{id}` / `Project #{id}`.
-2. **Every entity mention in the response gets a link** — including when listing multiple, quoting back an entity from the user's request, or confirming after a create/edit. If you mention the same task 3 times in a reply, link it every time (user reads linearly, not scanning).
+1. **Link text = human-readable name** of the entity, NEVER the URL. Use `[Task name](url)`, not `<url>` and not the URL on its own line. If the name is genuinely unknown after fetching the resource, fall back to `Task #{id}` / `Project #{id}` / `Comment #{id}` — but do this only when you have already tried to retrieve the name and it isn't available (e.g. response was archived/deleted). Never use the fallback as a shortcut.
+2. **Every entity mention in the response gets a link** — including when listing multiple, quoting back an entity from the user's request, or confirming after a create/edit. If you mention the same task 3 times in a reply, link it every time (user reads linearly, not scanning). **This applies in every rendering context: prose paragraphs, bulleted/numbered lists, table cells, headings — without exception.** If you find yourself putting a URL in a table cell, stop and turn it into `[name](url)` first.
 3. **For subtasks** → use the `task_id` field from the API response (NOT `id`). The subtask-specific `id` is not routable in the web UI.
 4. **For comments** → you need both `task_id` (the comment's parent task) and `comment_id` (from the create/edit response, or from the task's `comments[]` array).
 5. **Do not link entities that don't have an ID yet** (e.g. a task you're about to create). Link it AFTER the create call returns with the ID.
 6. **Projects** — the `/tasklists?layout=kanban` suffix is the canonical "main project view". If the user is looking for a specific sub-view (e.g. Calendar, Reports), you can drop the suffix and link just `/project/{id}/` — but default to the kanban URL.
 7. **Do not link hypothetical entities** — only link what exists in the API data you fetched.
+
+### Fallback when the renderer can't show link text
+
+Some Markdown renderers — most notably Claude Code's **terminal UI** inside narrow contexts (table cells, inline lists) — collapse `[name](url)` to just the URL. The link text vanishes and the user sees only `https://app.freelo.io/...`, defeating the whole point.
+
+**Detect this and switch formats**:
+
+- **Proactive signal** — if the user explicitly says they're in a terminal / CLI / TUI ("running in terminal", "v terminálu", "v CLI", "Claude Code CLI"), use the fallback format from the start.
+- **Reactive signal** — if the user asks "why don't I see task names?", "vidím jen URL", "where are the names?", or sends back a screenshot / quote of your reply showing bare URLs in cells, immediately switch and apologize briefly.
+
+**Fallback format — two-line plain text** (name on one line, URL on its own line below):
+
+> 1. Strategický balíček: Volba segmentu + Fáze 1 schválení
+>    https://app.freelo.io/task/29234425
+>    Termín: 16. 4. 2026 ⚠️ po termínu — 1 subtask, 15 komentářů
+>
+> 2. Připravit prezentaci pro klienta XYZ
+>    https://app.freelo.io/task/29318644
+>    Termín: 17. 4. 2026 ⚠️ po termínu — 1 komentář
+
+Why this works in every renderer: terminals autodetect URLs on their own line as clickable (cmd-click / ctrl-click), and the name on the line above is plain text that always shows. The two-line cost vs. inline links is acceptable trade-off.
+
+**Once you switch in a conversation, stay in the fallback format for the rest of it** — the user's renderer doesn't change mid-session. Only return to `[name](url)` if the user asks for it explicitly.
 
 ---
 
@@ -334,7 +392,7 @@ Organized by feature. Each section: **list → detail → create → update → 
 ### Get current user
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/users/me"
 ```
 
@@ -343,7 +401,7 @@ Response: `{"result": "success", "user": {"id": 12345}}` — the minimal auth ec
 ### List all coworkers
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/users"
 ```
 
@@ -352,7 +410,7 @@ Response shape: **paginated**, `{total, count, page, per_page, data: {users: [..
 ### List workers on a project
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project/{project_id}/workers"
 ```
 
@@ -361,7 +419,7 @@ Response shape: **paginated**, `{total, count, page, per_page, data: {workers: [
 ### Invite users to projects
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"emails":["a@b.com","c@d.com"],"projects_ids":[123,456]}' \
   "$FREELO_BASE_URL/users/manage-workers"
@@ -370,7 +428,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Remove workers from project
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"users_emails":["a@b.com","c@d.com"]}' \
   "$FREELO_BASE_URL/project/{project_id}/remove-workers/by-emails"
@@ -387,7 +445,7 @@ Freelo has **three project-listing endpoints** with different shapes and scopes 
 ### 1. `/projects` — projects where you are the **owner** (bare array)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/projects"
 ```
 
@@ -396,7 +454,7 @@ Bare array. Each element includes `tasklists` with nested task previews. **Does 
 ### 2. `/all-projects` — same owner scope, but paginated
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-projects?p=0"
 ```
 
@@ -405,7 +463,7 @@ Response shape: `{total, count, page, per_page, data: {projects: [...]}}`.
 ### 3. `/invited-projects` — projects where you are a worker (invited)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/invited-projects?p=0"
 ```
 
@@ -416,7 +474,7 @@ Response shape: `{total, count, page, per_page, data: {invited_projects: [...]}}
 ### Project detail
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project/{project_id}"
 ```
 
@@ -436,14 +494,14 @@ These are **read-only rollups**. They update automatically as work reports accum
 ### Archived projects
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-projects?state=archived"
 ```
 
 ### Template projects
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/template-projects"
 ```
 
@@ -452,7 +510,7 @@ Response shape: **paginated**, `{total, count, page, per_page, data: {template_p
 ### Create project
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Project Name","currency_iso":"CZK"}' \
   "$FREELO_BASE_URL/projects"
@@ -464,15 +522,15 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 
 ```bash
 # Archive
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project/{project_id}/archive"
 
 # Reactivate
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project/{project_id}/activate"
 
 # Delete (irreversible!)
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project/{project_id}"
 ```
 
@@ -483,7 +541,7 @@ curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Clau
 ### List all tasklists (paginated)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-tasklists"
 ```
 
@@ -496,14 +554,14 @@ Use `GET /project/{id}` and read `.tasklists` from the response.
 ### Tasklist detail (includes tasks)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/tasklist/{tasklist_id}"
 ```
 
 ### Create tasklist
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Sprint 1"}' \
   "$FREELO_BASE_URL/project/{project_id}/tasklists"
@@ -528,7 +586,7 @@ There is no `DELETE /tasklist/{id}` endpoint (returns 404). If the user wants to
 ### List all tasks (paginated — the workhorse)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-tasks"
 ```
 
@@ -549,11 +607,11 @@ There is no separate endpoint; filter `/all-tasks` with `states[]` or a date ran
 
 ```bash
 # Finished tasks in a project
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-tasks?states[]=finished&projects_ids[]={project_id}"
 
 # Overdue — active tasks with due_date before today
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-tasks?states[]=active&due_date_to=2026-04-14"
 ```
 
@@ -562,7 +620,7 @@ curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1
 ### Tasks in a tasklist
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project/{project_id}/tasklist/{tasklist_id}/tasks"
 ```
 
@@ -571,7 +629,7 @@ Response shape: **bare array**, not paginated.
 ### Task detail
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}"
 ```
 
@@ -582,7 +640,7 @@ Full detail — labels, author, worker, state, dates, cost, minutes, comments ar
 ### Create task
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{
     "name":"Fix login bug",
@@ -605,7 +663,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Edit task
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"New name","priority_enum":"m","worker":12345,"due_date":"2026-07-01","due_date_end":"2026-07-05"}' \
   "$FREELO_BASE_URL/task/{task_id}"
@@ -618,24 +676,24 @@ Send only fields you want to change.
 ### Finish / reactivate task
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}/finish"
 
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}/activate"
 ```
 
 ### Move task to another tasklist
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}/move/{target_tasklist_id}"
 ```
 
 ### Delete task (irreversible)
 
 ```bash
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}"
 ```
 
@@ -647,11 +705,11 @@ The description is stored **internally as a special comment** that also shows up
 
 ```bash
 # Get
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}/description"
 
 # Set / update — body key is "content", NOT "description"
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"content":"<p>Full HTML content here</p>"}' \
   "$FREELO_BASE_URL/task/{task_id}/description"
@@ -665,11 +723,11 @@ Response includes `{id, content, date_add, files}` — the description has its o
 
 ```bash
 # 1. Upload
-FILE_UUID=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+FILE_UUID=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -F "file=@./spec.pdf" "$FREELO_BASE_URL/file/upload" | jq -r .uuid)
 
 # 2. Set description with file attached
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d "{\"content\":\"<p>See attached spec</p>\",\"files\":[{\"uuid\":\"$FILE_UUID\"}]}" \
   "$FREELO_BASE_URL/task/{task_id}/description"
@@ -685,13 +743,13 @@ Task time estimates are available only on paid Freelo plans. Accounts without th
 
 ```bash
 # Set total estimate (body key is `minutes`)
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"minutes":480}' \
   "$FREELO_BASE_URL/task/{task_id}/total-time-estimate"
 
 # Delete total estimate
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}/total-time-estimate"
 ```
 
@@ -703,13 +761,13 @@ The detail of an existing estimate appears in `GET /task/{id}` under `total_time
 
 ```bash
 # Create reminder
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"remind_at":"2026-06-15T09:00:00+02:00"}' \
   "$FREELO_BASE_URL/task/{task_id}/reminder"
 
 # Delete reminder
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}/reminder"
 ```
 
@@ -729,7 +787,7 @@ curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Clau
 ### List subtasks of a task
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{task_id}/subtasks"
 ```
 
@@ -740,7 +798,7 @@ Each subtask item has both `id` (subtask-specific) and `task_id` (usable task ID
 ### Create subtask
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Write tests","worker":12345,"due_date":"2026-06-15","priority_enum":"m"}' \
   "$FREELO_BASE_URL/task/{parent_task_id}/subtasks"
@@ -752,19 +810,19 @@ Same body rules as tasks (worker = integer, priority_enum). **Read `task_id` fro
 
 ```bash
 # Detail
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{subtask_task_id}"
 
 # Finish
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{subtask_task_id}/finish"
 
 # Reactivate
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{subtask_task_id}/activate"
 
 # Delete
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/{subtask_task_id}"
 ```
 
@@ -787,7 +845,7 @@ Because `task_id` is null, the resulting "nested subtask" cannot be fetched, fin
 ### List all comments (paginated)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-comments"
 ```
 
@@ -815,7 +873,7 @@ When you read a task's `comments[]` via task detail, each comment carries more f
 ### Create comment on a task
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"content":"Looks good, merging now."}' \
   "$FREELO_BASE_URL/task/{task_id}/comments"
@@ -830,7 +888,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Edit comment
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"content":"Updated text"}' \
   "$FREELO_BASE_URL/comment/{comment_id}"
@@ -839,7 +897,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 **Attach new files to an existing comment** — the `files` field works on edit too:
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"content":"Updated with file","files":[{"uuid":"abc-1234-..."}]}' \
   "$FREELO_BASE_URL/comment/{comment_id}"
@@ -869,7 +927,7 @@ Freelo has **two independent label entities** that are easy to confuse:
 ### List available project labels
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project-labels/find-available"
 ```
 
@@ -878,7 +936,7 @@ Response shape: `{"labels": [...]}` — a dict with a `labels` key, not a bare a
 ### Add a label to a project
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Priority","color":"#e9483a","is_private":false}' \
   "$FREELO_BASE_URL/project-labels/add-to-project/{project_id}"
@@ -889,7 +947,7 @@ All three fields are required: `name`, `color` (from whitelist), `is_private` (b
 ### Edit a project label
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"New name","color":"#e9483a","is_private":false}' \
   "$FREELO_BASE_URL/project-labels/{label_id}"
@@ -898,7 +956,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Delete a project label (cleanest removal)
 
 ```bash
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project-labels/{label_id}"
 ```
 
@@ -909,7 +967,7 @@ Returns `{"result": "success"}`. **Prefer this over `/project-labels/remove-from
 ```bash
 # Create one or more task-labels (they go into the global pool).
 # Body MUST be wrapped in a "labels" array — sending {"name":..., "color":...} at the top level returns 400.
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"labels":[{"name":"Bug","color":"#e9483a"}]}' \
   "$FREELO_BASE_URL/task-labels"
@@ -921,13 +979,13 @@ Response: `{"result": "success"}`. The created labels do not come back in the bo
 
 ```bash
 # By UUID (preferred — uses an existing task label)
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"labels":[{"uuid":"abc-uuid-here"}]}' \
   "$FREELO_BASE_URL/task-labels/add-to-task/{task_id}"
 
 # By name (creates a NEW task label in the global pool with default grey color)
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"labels":[{"name":"Bug"}]}' \
   "$FREELO_BASE_URL/task-labels/add-to-task/{task_id}"
@@ -936,7 +994,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Remove task label from a task
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"labels":[{"uuid":"abc-uuid-here"}]}' \
   "$FREELO_BASE_URL/task-labels/remove-from-task/{task_id}"
@@ -953,7 +1011,7 @@ Custom fields are project-scoped and use UUIDs. Values are set per task.
 ### List custom field types
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/custom-field/get-types"
 ```
 
@@ -972,7 +1030,7 @@ Response shape: `{"custom_field_types": [{"uuid": "...", "name": "..."}]}`.
 ### List fields in a project
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/custom-field/find-by-project/{project_id}"
 ```
 
@@ -981,7 +1039,7 @@ Response shape: `{"custom_fields": [...], "is_commander": bool}`. The `is_comman
 ### Create custom field
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Story Points","type":"<type-uuid-from-get-types>"}' \
   "$FREELO_BASE_URL/custom-field/create/{project_id}"
@@ -992,27 +1050,27 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Rename / delete / restore field
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Estimate"}' \
   "$FREELO_BASE_URL/custom-field/rename/{field_uuid}"
 
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/custom-field/delete/{field_uuid}"
 
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/custom-field/restore/{field_uuid}"
 ```
 
 ### Set / delete value on a task (text / number fields)
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"task_id":12345,"custom_field_uuid":"abc-uuid","value":"42"}' \
   "$FREELO_BASE_URL/custom-field/add-or-edit-value"
 
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/custom-field/delete-value/{value_uuid}"
 ```
 
@@ -1020,31 +1078,31 @@ curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Clau
 
 ```bash
 # List options for a field
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/custom-field-enum/get-for-custom-field/{field_uuid}"
 
 # Create option
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Option A","color":"#e9483a"}' \
   "$FREELO_BASE_URL/custom-field-enum/create/{field_uuid}"
 
 # Edit option
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Option B","color":"#62d26f"}' \
   "$FREELO_BASE_URL/custom-field-enum/change/{enum_uuid}"
 
 # Delete option (safe, fails if used on tasks)
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/custom-field-enum/delete/{enum_uuid}"
 
 # Force-delete (removes from all tasks too)
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/custom-field-enum/force-delete/{enum_uuid}"
 
 # Set enum value on a task
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"task_id":12345,"custom_field_uuid":"abc-uuid","custom_field_enum_uuid":"def-uuid"}' \
   "$FREELO_BASE_URL/custom-field/add-or-edit-enum-value"
@@ -1057,7 +1115,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Create note in a project
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Retro notes","content":"<p>HTML content</p>"}' \
   "$FREELO_BASE_URL/project/{project_id}/note"
@@ -1066,15 +1124,15 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Get / edit / delete note
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/note/{note_id}"
 
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"New title","content":"<p>New content</p>"}' \
   "$FREELO_BASE_URL/note/{note_id}"
 
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/note/{note_id}"
 ```
 
@@ -1091,7 +1149,7 @@ Only **one** timer runs per user at a time. Starting a new one while another is 
 ### Start tracking
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"task_id":12345,"note":"Implementing feature X"}' \
   "$FREELO_BASE_URL/timetracking/start"
@@ -1102,7 +1160,7 @@ Both fields optional — you can track "free" time without a task. Response is m
 ### Status (the rich view)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/timetracking/status"
 ```
 
@@ -1111,7 +1169,7 @@ Returns the full active session: `{uuid, date_reported, task: {id, name, project
 ### Stop (auto-creates work report if task was set)
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/timetracking/stop"
 ```
 
@@ -1120,7 +1178,7 @@ Returns the created work report (when a task was attached): `{id, minutes, note,
 ### Edit an active tracking session
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"task_id":67890,"note":"Switched focus"}' \
   "$FREELO_BASE_URL/timetracking/edit"
@@ -1133,7 +1191,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Create work report manually
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"minutes":120,"date_reported":"2026-06-15","note":"Implementation","worker_id":12345}' \
   "$FREELO_BASE_URL/task/{task_id}/work-reports"
@@ -1146,19 +1204,19 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Edit / delete work report
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"minutes":90,"note":"Adjusted"}' \
   "$FREELO_BASE_URL/work-reports/{report_id}"
 
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/work-reports/{report_id}"
 ```
 
 ### List work reports — known limitation
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/work-reports?projects_ids[]={project_id}&users_ids[]={user_id}&p=0"
 ```
 
@@ -1189,7 +1247,7 @@ Files in Freelo have a specific three-step lifecycle — **upload, attach, then 
 ### List files in a project
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-docs-and-files?projects_ids[]={project_id}"
 ```
 
@@ -1199,7 +1257,7 @@ Response shape: `{total, count, page, per_page, data: {items: [...]}}` — note 
 ### Step 1 — Upload a file
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -F "file=@./local-file.pdf" \
   "$FREELO_BASE_URL/file/upload"
 ```
@@ -1227,7 +1285,7 @@ The UUID from upload is a **claim token**: it's not bound to any project/task un
 #### Attach to a new task comment
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"content":"See attached","files":[{"uuid":"abc-1234-..."}]}' \
   "$FREELO_BASE_URL/task/{task_id}/comments"
@@ -1236,7 +1294,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 #### Attach to an initial comment on task create
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"Task","worker":12345,"comment":{"content":"With file","files":[{"uuid":"abc-1234-..."}]}}' \
   "$FREELO_BASE_URL/project/{pid}/tasklist/{tlid}/tasks"
@@ -1251,7 +1309,7 @@ Adding `"files":[{"uuid":"..."}]` to a `POST /project/{pid}/note` or to `POST /n
 Once the file has been attached to any entity, download via the UUID:
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -o local-file.pdf \
   "$FREELO_BASE_URL/file/{file_uuid}"
 ```
@@ -1327,18 +1385,18 @@ Depending on where you read the file info, Freelo returns a **leaner or richer**
 
 ```bash
 # 1. Upload
-UPLOAD_RESP=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+UPLOAD_RESP=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -F "file=@./report.pdf" "$FREELO_BASE_URL/file/upload")
 FILE_UUID=$(echo "$UPLOAD_RESP" | jq -r .uuid)
 
 # 2. Attach to comment on task 12345
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d "{\"content\":\"Attached report\",\"files\":[{\"uuid\":\"$FILE_UUID\"}]}" \
   "$FREELO_BASE_URL/task/12345/comments"
 
 # 3. Download it back (as a new requester would)
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -o ./downloaded.pdf "$FREELO_BASE_URL/file/$FILE_UUID"
 ```
 
@@ -1349,7 +1407,7 @@ curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1
 ### List template projects
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/template-projects"
 ```
 
@@ -1359,17 +1417,17 @@ Paginated shape: `{data: {template_projects: [...]}, ...}`.
 
 ```bash
 # Project from template
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"name":"New Project"}' \
   "$FREELO_BASE_URL/project/create-from-template/{template_id}"
 
 # Tasklist from template
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/tasklist/create-from-template/{template_id}"
 
 # Task from template
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/task/create-from-template/{template_id}"
 ```
 
@@ -1379,17 +1437,17 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 
 ```bash
 # List
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/project/{project_id}/pinned-items"
 
 # Create
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"link":"https://example.com/doc","title":"Design spec"}' \
   "$FREELO_BASE_URL/project/{project_id}/pinned-items"
 
 # Delete
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/pinned-item/{pinned_id}"
 ```
 
@@ -1399,18 +1457,18 @@ curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Clau
 
 ```bash
 # List all
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-notifications"
 
 # Unread only
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/all-notifications?unread=1"
 
 # Mark read / unread
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/notification/{notification_id}/mark-as-read"
 
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/notification/{notification_id}/mark-as-unread"
 ```
 
@@ -1419,7 +1477,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ## Events (audit log)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/events?projects_ids[]={project_id}&users_ids[]={user_id}&p=0"
 ```
 
@@ -1434,7 +1492,7 @@ Paginated with `data.events`.
 
 ```bash
 # Last month's activity across the whole account
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/events?date_from=2026-03-01&date_to=2026-04-01"
 ```
 
@@ -1447,7 +1505,7 @@ Each event is rich — includes `author` (with out-of-office info), nested `proj
 ### Status
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/user/{user_id}/out-of-office"
 ```
 
@@ -1457,7 +1515,7 @@ Response when active: `{"out_of_office": {"date_from": "...", "date_to": "..."}}
 ### Enable
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"out_of_office":{"date_from":"2026-07-01 00:00:00","date_to":"2026-07-14 23:59:59"}}' \
   "$FREELO_BASE_URL/user/{user_id}/out-of-office"
@@ -1473,7 +1531,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 ### Disable
 
 ```bash
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/user/{user_id}/out-of-office"
 ```
 
@@ -1483,15 +1541,15 @@ curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Clau
 
 ```bash
 # List issued invoices
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/issued-invoices?projects_ids[]={project_id}"
 
 # Invoice detail
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   "$FREELO_BASE_URL/issued-invoice/{invoice_id}"
 
 # Mark as invoiced
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"url":"https://accounting.com/inv-123","subject":"Invoice #123"}' \
   "$FREELO_BASE_URL/issued-invoice/{invoice_id}/mark-as-invoiced"
@@ -1504,7 +1562,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 The single most useful endpoint for resolving names to IDs.
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
   -H "Content-Type: application/json" \
   -d '{"search_query":"deployment","entity_type":"task"}' \
   "$FREELO_BASE_URL/search"
