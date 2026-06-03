@@ -5,6 +5,27 @@ Všechny významné změny v tomto skillu budou dokumentovány zde.
 Formát vychází z [Keep a Changelog](https://keepachangelog.com/cs/1.1.0/),
 verzování dle [Semantic Versioning](https://semver.org/lang/cs/).
 
+## [Unreleased]
+
+### Změněno
+
+- **Skill refaktorován na progressive disclosure.** Původní 1717-řádková
+  SKILL.md byla rozdělena na štíhlou SKILL.md (~190 řádků, slouží jako
+  router) a 99 souborů v `references/`, jeden na use case. Claude tak
+  načítá jen tu část dokumentace, kterou potřebuje pro aktuální dotaz,
+  místo aby měl v kontextu celou referenci. SKILL.md teď obsahuje pouze
+  autentizaci, URL šablony pro odkazy, kritické formátovací pravidlo,
+  shrnutí konvencí a tabulku referencí s trigger frázemi. Detailní
+  endpointy, error handling, pitfalls a tipy se načítají z příslušného
+  reference souboru. Žádné API změny — pure relokace.
+- **`references/curl-conventions.md`** — sdílený soubor s API basics,
+  response shapes, error patterns, paginací, datovými formáty, currency,
+  ID typy, prioritou, color whitelist, HTTP kódy, ~35 pitfalls a tipy.
+  Načte se při psaní jakéhokoliv nového curl volání nebo dekódování chyby.
+- **`references/response-formatting.md`** — plné rules pro formátování
+  odkazů včetně bad/good příkladů a terminálového fallbacku. Načte se
+  při skládání odpovědi zmiňující Freelo entitu.
+
 ## [1.0.1] — 2026-04-29
 
 ### Opraveno

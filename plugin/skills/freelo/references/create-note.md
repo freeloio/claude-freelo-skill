@@ -1,0 +1,12 @@
+# Create a note in a project
+
+Load when the user asks to create a project note. HTML headings are stripped — use <p> + <strong> instead.
+
+```bash
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Retro notes","content":"<p>HTML content</p>"}' \
+  "$FREELO_BASE_URL/project/{project_id}/note"
+```
+
+> **HTML sanitization on notes is stricter than on comments.** Notes strip heading tags (`<h1>` through `<h6>`) before storage — the text content is kept, but the wrapping tags are removed. Safe tags like `<p>`, `<ul>`, `<li>`, `<strong>`, `<em>` pass through. The entire content is also wrapped in an outer `<div>`. Example: input `<h3>Title</h3><p>body</p>` becomes `<div>Title<p>body</p></div>`. If you need structural hierarchy, use `<strong>` or `<p>` with bold rather than heading tags.
