@@ -21,6 +21,6 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 **Body rules:**
 
 - `worker` is an **integer** user ID. Passing `{"id": N}` returns HTTP 400.
-- Priority field is `priority_enum`. The field `priority` is silently ignored on create.
+- `priority_enum` accepts `"l"` (low), `"m"` (medium / default), or `"h"` (high). The field `priority` (without `_enum`) is silently ignored on create.
 - `due_date` and `due_date_end` accept `YYYY-MM-DD` or ISO 8601 with `+02:00` / `Z`.
 - Optional `comment` seeds an initial comment.
