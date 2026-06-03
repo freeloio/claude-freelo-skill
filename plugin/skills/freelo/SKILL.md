@@ -180,6 +180,7 @@ Rate limit **25 req/min**. Errors: `{"errors":[...]}` (400/422) or `{"error":"..
 | [list-issued-invoices.md](references/list-issued-invoices.md) | "Show invoices on project X" |
 | [get-invoice-detail.md](references/get-invoice-detail.md) | "Show invoice X" |
 | [mark-invoice-as-invoiced.md](references/mark-invoice-as-invoiced.md) | "Mark invoice X as invoiced" |
+| [invoices-create-not-supported.md](references/invoices-create-not-supported.md) | "Create / issue / vystavit fakturu" (UI-only — API has no create endpoint) |
 | **Search** | |
 | [search-freelo.md](references/search-freelo.md) | "Find / search for task / project / comment / file by keyword" |
 
