@@ -3,7 +3,7 @@
 Load when the user asks who they are, wants to verify credentials, or needs their user ID.
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   "$FREELO_BASE_URL/users/me"
 ```
 

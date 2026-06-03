@@ -5,7 +5,7 @@ Load when the user asks to download a file by UUID. Auth is required on every fi
 Once the file has been attached to any entity, download via the UUID:
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   -o local-file.pdf \
   "$FREELO_BASE_URL/file/{file_uuid}"
 ```

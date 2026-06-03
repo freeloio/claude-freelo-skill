@@ -17,14 +17,14 @@ Freelo has **two independent label entities** that are easy to confuse:
 
 ```bash
 # By UUID (preferred — uses an existing task label, no duplicates)
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   -H "Content-Type: application/json" \
   -d '{"labels":[{"uuid":"abc-uuid-here"}]}' \
   "$FREELO_BASE_URL/task-labels/add-to-task/{task_id}"
 
 # By name (creates a NEW task label in the global pool with default grey color
 # — see "Resolving a label UUID" below before using this on bulk operations)
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   -H "Content-Type: application/json" \
   -d '{"labels":[{"name":"Bug"}]}' \
   "$FREELO_BASE_URL/task-labels/add-to-task/{task_id}"
@@ -38,7 +38,7 @@ To get the UUID of an existing task label by name (e.g. "Urgent"), inspect a tas
 
 ```bash
 # Find any recent task that uses the label, then read its labels[]
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   "$FREELO_BASE_URL/task/{some_task_with_label}" \
   | jq -r '.labels[] | select(.name == "Urgent") | .uuid'
 ```

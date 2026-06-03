@@ -9,7 +9,7 @@ Load when the user asks to delete a subtask. Irreversible — confirm first.
 
 ```bash
 # Delete
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   "$FREELO_BASE_URL/task/{subtask_task_id}"
 ```
 

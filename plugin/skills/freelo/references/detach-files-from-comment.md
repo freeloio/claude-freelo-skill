@@ -5,7 +5,7 @@ Load when the user asks to remove file attachments from a comment but keep the c
 To remove all files from a comment without deleting the comment, edit it with `files:[]`:
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   -H "Content-Type: application/json" \
   -d '{"content":"...","files":[]}' \
   "$FREELO_BASE_URL/comment/{comment_id}"

@@ -15,7 +15,7 @@ Freelo.io is a project and task management tool. This skill calls Freelo's REST 
 HTTP Basic Auth with credentials from environment variables (configured in `~/.claude/settings.json`):
 
 - **Username**: `$FREELO_EMAIL` · **Password**: `$FREELO_API_KEY` · **Base URL**: `$FREELO_BASE_URL` (default: `https://api.freelo.io/v1`)
-- Every request **must** include `User-Agent: Freelo-Claude-Skill/1.0.1` — Freelo identifies skill traffic by this exact value for adoption telemetry. Do not substitute.
+- Every request **must** include `User-Agent: Freelo-Claude-Skill/1.1.0` — Freelo identifies skill traffic by this exact value for adoption telemetry. Do not substitute.
 
 If `$FREELO_EMAIL` or `$FREELO_API_KEY` is unset, stop and tell the user to add them to `~/.claude/settings.json` and restart Claude Code. Do not ask for credentials in the conversation.
 
@@ -23,7 +23,7 @@ If `$FREELO_EMAIL` or `$FREELO_API_KEY` is unset, stop and tell the user to add 
 FREELO_BASE_URL="${FREELO_BASE_URL:-https://api.freelo.io/v1}"
 
 curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" \
-  -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+  -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   -H "Content-Type: application/json" \
   "$FREELO_BASE_URL/{endpoint}"
 ```

@@ -5,7 +5,7 @@ Load when the user asks to create a task with a file already attached to its ini
 ### Upload (returns UUID claim token)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   -F "file=@./local-file.pdf" \
   "$FREELO_BASE_URL/file/upload"
 ```
@@ -31,7 +31,7 @@ The UUID from upload is a **claim token**: it's not bound to any project/task un
 ### Attach on task create
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   -H "Content-Type: application/json" \
   -d '{"name":"Task","worker":12345,"comment":{"content":"With file","files":[{"uuid":"abc-1234-..."}]}}' \
   "$FREELO_BASE_URL/project/{pid}/tasklist/{tlid}/tasks"

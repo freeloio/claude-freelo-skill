@@ -3,7 +3,7 @@
 Load when the user asks what they are tracking, or whether a timer is running.
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   "$FREELO_BASE_URL/timetracking/status"
 ```
 

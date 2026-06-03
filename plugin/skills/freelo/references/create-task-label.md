@@ -18,7 +18,7 @@ Freelo has **two independent label entities** that are easy to confuse:
 ```bash
 # Create one or more task-labels (they go into the global pool).
 # Body MUST be wrapped in a "labels" array — sending {"name":..., "color":...} at the top level returns 400.
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   -H "Content-Type: application/json" \
   -d '{"labels":[{"name":"Bug","color":"#e9483a"}]}' \
   "$FREELO_BASE_URL/task-labels"

@@ -3,7 +3,7 @@
 Load when the user asks to list the custom fields defined on a project. Response includes is_commander flag indicating edit/delete permission.
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.0.1" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
   "$FREELO_BASE_URL/custom-field/find-by-project/{project_id}"
 ```
 
