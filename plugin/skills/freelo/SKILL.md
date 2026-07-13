@@ -117,6 +117,7 @@ Rate limit **25 req/min**. Errors: `{"errors":[...]}` (400/422) or `{"error":"..
 | [create-project-label.md](references/create-project-label.md) | "Add a label to project X" |
 | [edit-project-label.md](references/edit-project-label.md) | "Rename / recolor project label X" |
 | [delete-project-label.md](references/delete-project-label.md) | "Remove project label X" |
+| [list-task-label-colors.md](references/list-task-label-colors.md) | "What colors can a task label be?" / discover valid label colors before create / add |
 | [create-task-label.md](references/create-task-label.md) | "Create a task label in the global pool" |
 | [add-task-label-to-task.md](references/add-task-label-to-task.md) | "Add label X to task Y" (by UUID or name) |
 | [remove-task-label-from-task.md](references/remove-task-label-from-task.md) | "Remove label X from task Y" |
