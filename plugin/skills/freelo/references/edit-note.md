@@ -3,7 +3,7 @@
 Load when the user asks to rename or change the content of a note. HTML headings are stripped.
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"name":"New title","content":"<p>New content</p>"}' \
   "$FREELO_BASE_URL/note/{note_id}"

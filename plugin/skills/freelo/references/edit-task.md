@@ -5,7 +5,7 @@ Load when the user asks to rename a task, change its priority, reassign worker, 
 ### Edit task
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"name":"New name","priority_enum":"m","worker":12345,"due_date":"2026-07-01","due_date_end":"2026-07-05"}' \
   "$FREELO_BASE_URL/task/{task_id}"

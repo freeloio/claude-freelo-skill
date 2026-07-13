@@ -3,7 +3,7 @@
 Load when the user asks to list work reports filtered by project, user, date range, or pagination — including "how many hours this week", weekly / monthly team reports, or workload summaries.
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/work-reports?projects_ids[]={project_id}&users_ids[]={user_id}&p=0"
 ```
 
@@ -31,7 +31,7 @@ User asks "Kolik hodin tento týden odpracoval tým na projektu X?" or similar:
 
 ```bash
 # Week of 2026-06-01 to 2026-06-07 on project 580898
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/work-reports?projects_ids[]=580898&date_reported_range%5Bdate_from%5D=2026-06-01&date_reported_range%5Bdate_to%5D=2026-06-07"
 ```
 

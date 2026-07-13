@@ -7,7 +7,7 @@ The `color` field on task labels (`POST /task-labels`, `/task-labels/add-to-task
 ### Get the palette
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/task-label-colors"
 ```
 

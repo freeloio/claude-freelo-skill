@@ -5,7 +5,7 @@ Load when the user asks to change a comment's text, or to retroactively attach f
 ### Edit comment
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"content":"Updated text"}' \
   "$FREELO_BASE_URL/comment/{comment_id}"
@@ -14,7 +14,7 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 **Attach new files to an existing comment** — the `files` field works on edit too:
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"content":"Updated with file","files":[{"uuid":"abc-1234-..."}]}' \
   "$FREELO_BASE_URL/comment/{comment_id}"

@@ -5,7 +5,7 @@ Load when the user asks for a list of tasks: all tasks, today's tasks, overdue, 
 ### List all tasks (paginated — the workhorse)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/all-tasks"
 ```
 
@@ -26,11 +26,11 @@ There is no separate endpoint; filter `/all-tasks` with `states[]` or a date ran
 
 ```bash
 # Finished tasks in a project
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/all-tasks?states[]=finished&projects_ids[]={project_id}"
 
 # Overdue — active tasks with due_date before today
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/all-tasks?states[]=active&due_date_to=2026-04-14"
 ```
 
@@ -39,7 +39,7 @@ curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1
 ### Tasks in a tasklist
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/project/{project_id}/tasklist/{tasklist_id}/tasks"
 ```
 

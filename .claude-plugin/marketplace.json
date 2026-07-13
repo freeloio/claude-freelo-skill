@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "freelo",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "source": "./plugin",
       "description": "Ovládejte Freelo.io přes Claude přirozeným jazykem — vytvářejte úkoly, sledujte čas, generujte přehledy projektů, spravujte štítky, soubory a další."
     }

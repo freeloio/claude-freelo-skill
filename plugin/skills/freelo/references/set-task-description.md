@@ -4,7 +4,7 @@ Load when the user asks to set or update a task's description, with or without f
 
 ```bash
 # Set / update — body key is "content", NOT "description"
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"content":"<p>Full HTML content here</p>"}' \
   "$FREELO_BASE_URL/task/{task_id}/description"
@@ -18,11 +18,11 @@ Response includes `{id, content, date_add, files}` — the description has its o
 
 ```bash
 # 1. Upload
-FILE_UUID=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+FILE_UUID=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -F "file=@./spec.pdf" "$FREELO_BASE_URL/file/upload" | jq -r .uuid)
 
 # 2. Set description with file attached
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d "{\"content\":\"<p>See attached spec</p>\",\"files\":[{\"uuid\":\"$FILE_UUID\"}]}" \
   "$FREELO_BASE_URL/task/{task_id}/description"
