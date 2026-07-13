@@ -3,7 +3,7 @@
 Load when the user asks about recent activity, an audit log, or what changed on a project or by a user.
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/events?projects_ids[]={project_id}&users_ids[]={user_id}&p=0"
 ```
 
@@ -18,7 +18,7 @@ Paginated with `data.events`.
 
 ```bash
 # Last month's activity across the whole account
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/events?date_from=2026-03-01&date_to=2026-04-01"
 ```
 

@@ -5,7 +5,7 @@ Load when the user asks to add a comment to a task. HTML is sanitized server-sid
 ### Create comment on a task
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"content":"Looks good, merging now."}' \
   "$FREELO_BASE_URL/task/{task_id}/comments"

@@ -146,6 +146,8 @@ Freelo labels accept **only these 26 colors** (as hex). Any other value returns 
 #8da3a6  #e9e9e9
 ```
 
+The **first 10** above are the current palette (what the Freelo UI offers); the rest are legacy but still accepted. For the current task-label palette live — with human names and which color is the default — call `GET /task-label-colors` (see [list-task-label-colors.md](list-task-label-colors.md)) instead of hardcoding this list.
+
 If the user asks for an unsupported color, pick the closest match from the list.
 
 ### CREATE response vs. GET response

@@ -16,7 +16,7 @@ Freelo has **two independent label entities** that are easy to confuse:
 ### Delete a project label (cleanest removal)
 
 ```bash
-curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X DELETE -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/project-labels/{label_id}"
 ```
 

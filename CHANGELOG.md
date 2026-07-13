@@ -5,6 +5,16 @@ Všechny významné změny v tomto skillu budou dokumentovány zde.
 Formát vychází z [Keep a Changelog](https://keepachangelog.com/cs/1.1.0/),
 verzování dle [Semantic Versioning](https://semver.org/lang/cs/).
 
+## [1.2.0] — 2026-07-13
+
+### Přidáno
+
+- **Reference `list-task-label-colors.md`** pro nový veřejný endpoint `GET /task-label-colors`, který vrací aktuální paletu barev task labelů (10 barev; `color` / `display_name` / `is_default`). Umožňuje Claudovi zjistit platné barvy živě místo hádání z pevného seznamu. Zaregistrováno v `SKILL.md` (sekce Labels) a propojeno ze sekce Colors v `references/curl-conventions.md`.
+
+### Telemetrie
+
+- User-Agent `Freelo-Claude-Skill/1.1.0` → `1.2.0` ve všech 120 curl příkladech napříč SKILL.md + reference soubory, aby backend mohl rozlišit adopci nové verze.
+
 ## [1.1.0] — 2026-06-03
 
 ### Změněno

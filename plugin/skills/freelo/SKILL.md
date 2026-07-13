@@ -15,7 +15,7 @@ Freelo.io is a project and task management tool. This skill calls Freelo's REST 
 HTTP Basic Auth with credentials from environment variables (configured in `~/.claude/settings.json`):
 
 - **Username**: `$FREELO_EMAIL` · **Password**: `$FREELO_API_KEY` · **Base URL**: `$FREELO_BASE_URL` (default: `https://api.freelo.io/v1`)
-- Every request **must** include `User-Agent: Freelo-Claude-Skill/1.1.0` — Freelo identifies skill traffic by this exact value for adoption telemetry. Do not substitute.
+- Every request **must** include `User-Agent: Freelo-Claude-Skill/1.2.0` — Freelo identifies skill traffic by this exact value for adoption telemetry. Do not substitute.
 
 If `$FREELO_EMAIL` or `$FREELO_API_KEY` is unset, stop and tell the user to add them to `~/.claude/settings.json` and restart Claude Code. Do not ask for credentials in the conversation.
 
@@ -23,7 +23,7 @@ If `$FREELO_EMAIL` or `$FREELO_API_KEY` is unset, stop and tell the user to add 
 FREELO_BASE_URL="${FREELO_BASE_URL:-https://api.freelo.io/v1}"
 
 curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" \
-  -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+  -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   "$FREELO_BASE_URL/{endpoint}"
 ```
@@ -117,6 +117,7 @@ Rate limit **25 req/min**. Errors: `{"errors":[...]}` (400/422) or `{"error":"..
 | [create-project-label.md](references/create-project-label.md) | "Add a label to project X" |
 | [edit-project-label.md](references/edit-project-label.md) | "Rename / recolor project label X" |
 | [delete-project-label.md](references/delete-project-label.md) | "Remove project label X" |
+| [list-task-label-colors.md](references/list-task-label-colors.md) | "What colors can a task label be?" / discover valid label colors before create / add |
 | [create-task-label.md](references/create-task-label.md) | "Create a task label in the global pool" |
 | [add-task-label-to-task.md](references/add-task-label-to-task.md) | "Add label X to task Y" (by UUID or name) |
 | [remove-task-label-from-task.md](references/remove-task-label-from-task.md) | "Remove label X from task Y" |

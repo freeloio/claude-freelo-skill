@@ -5,7 +5,7 @@ Load when the user asks to find a task, subtask, project, tasklist, file, or com
 The single most useful endpoint for resolving names to IDs.
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"search_query":"deployment","entity_type":"task"}' \
   "$FREELO_BASE_URL/search"

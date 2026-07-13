@@ -8,7 +8,7 @@ Task time estimates are available only on paid Freelo plans. Accounts without th
 
 ```bash
 # Set total estimate (body key is `minutes`)
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"minutes":480}' \
   "$FREELO_BASE_URL/task/{task_id}/total-time-estimate"

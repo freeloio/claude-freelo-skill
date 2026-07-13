@@ -7,7 +7,7 @@ Freelo has **three project-listing endpoints** with different shapes and scopes 
 ### 1. `/projects` — projects where you are the **owner** (bare array)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/projects"
 ```
 
@@ -16,7 +16,7 @@ Bare array. Each element includes `tasklists` with nested task previews. **Does 
 ### 2. `/all-projects` — same owner scope, but paginated
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/all-projects?p=0"
 ```
 
@@ -25,7 +25,7 @@ Response shape: `{total, count, page, per_page, data: {projects: [...]}}`.
 ### 3. `/invited-projects` — projects where you are a worker (invited)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/invited-projects?p=0"
 ```
 
@@ -36,7 +36,7 @@ Response shape: `{total, count, page, per_page, data: {invited_projects: [...]}}
 ### Project detail
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/project/{project_id}"
 ```
 
@@ -56,14 +56,14 @@ These are **read-only rollups**. They update automatically as work reports accum
 ### Archived projects
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/all-projects?state=archived"
 ```
 
 ### Template projects
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   "$FREELO_BASE_URL/template-projects"
 ```
 

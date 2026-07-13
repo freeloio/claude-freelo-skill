@@ -5,7 +5,7 @@ Load when the user asks to attach a file to an existing or new comment on a task
 ### Upload (returns UUID claim token)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -F "file=@./local-file.pdf" \
   "$FREELO_BASE_URL/file/upload"
 ```
@@ -31,7 +31,7 @@ The UUID from upload is a **claim token**: it's not bound to any project/task un
 ### Attach via a new comment
 
 ```bash
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d '{"content":"See attached","files":[{"uuid":"abc-1234-..."}]}' \
   "$FREELO_BASE_URL/task/{task_id}/comments"
@@ -41,17 +41,17 @@ curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude
 
 ```bash
 # 1. Upload
-UPLOAD_RESP=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+UPLOAD_RESP=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -F "file=@./report.pdf" "$FREELO_BASE_URL/file/upload")
 FILE_UUID=$(echo "$UPLOAD_RESP" | jq -r .uuid)
 
 # 2. Attach to comment on task 12345
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d "{\"content\":\"Attached report\",\"files\":[{\"uuid\":\"$FILE_UUID\"}]}" \
   "$FREELO_BASE_URL/task/12345/comments"
 
 # 3. Download it back (as a new requester would)
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -o ./downloaded.pdf "$FREELO_BASE_URL/file/$FILE_UUID"
 ```

@@ -5,7 +5,7 @@ Load when the user asks to attach a file to a task description. WARNING: calling
 ### Upload (returns UUID claim token)
 
 ```bash
-curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -F "file=@./local-file.pdf" \
   "$FREELO_BASE_URL/file/upload"
 ```
@@ -34,11 +34,11 @@ The UUID from upload is a **claim token**: it's not bound to any project/task un
 
 ```bash
 # 1. Upload
-FILE_UUID=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+FILE_UUID=$(curl -s -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -F "file=@./spec.pdf" "$FREELO_BASE_URL/file/upload" | jq -r .uuid)
 
 # 2. Set description with file attached
-curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.1.0" \
+curl -s -X POST -u "$FREELO_EMAIL:$FREELO_API_KEY" -H "User-Agent: Freelo-Claude-Skill/1.2.0" \
   -H "Content-Type: application/json" \
   -d "{\"content\":\"<p>See attached spec</p>\",\"files\":[{\"uuid\":\"$FILE_UUID\"}]}" \
   "$FREELO_BASE_URL/task/{task_id}/description"
